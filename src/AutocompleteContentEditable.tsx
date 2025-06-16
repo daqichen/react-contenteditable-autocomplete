@@ -5,6 +5,7 @@ import ContentEditable from './ContentEditable/ContentEditable';
 import Menu from './Menu/Menu';
 import sanitizeHtml from 'sanitize-html';
 import { getCursorPosition } from './utils/inputHelper';
+import { Menu as MenuClass } from './types/Menu';
 
 const strictHTMLSanitization = {
     allowedTags: [],
@@ -19,13 +20,13 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
     placeholder = 'Type here...',
     className = '',
     style = {},
-    items = [],
     onSelectMenuItem = () => { },
     renderItem,
 }) => {
     const contentEditableRef = useRef<HTMLDivElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
-    const [menuPosition, setMenuPosition] = useState({ top: null, left: null });
+    const [menuPosition, setMenuPosition] = useState<{ top: number | null; left: number | null }>({ top: null, left: null });
+    const [internalMenuItems, setInternalMenuItems] = useState<MenuClass.Item[]>([]);
 
     const removeMenu = () => {
         if (menuRef.current) {
@@ -53,7 +54,17 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
         console.log('Last search term:', lastSearchTerm);
         if (strippedContent && strippedContent.startsWith(searchTrigger)) {
             const query = strippedContent.slice(searchTrigger.length).trim();
-            onSearch?.(query);
+            const results = onSearch?.(query);
+            if (results && results.length > 0) {
+                const rect = contentEditableRef.current.getBoundingClientRect();
+                setMenuPosition({
+                    top: rect.bottom + window.scrollY,
+                    left: rect.left + window.scrollX,
+                });
+                setInternalMenuItems(results);
+            } else {
+                removeMenu();
+            }
         }
     };
 
@@ -72,7 +83,7 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
             />
             <Menu
                 ref={menuRef}
-                items={items} // This should be populated with actual items
+                items={internalMenuItems} // This should be populated with actual items
                 onSelectMenuItem={onSelectMenuItem}
                 position={menuPosition} // Position should be calculated based on the contentEditable position
                 className="autocomplete-menu"

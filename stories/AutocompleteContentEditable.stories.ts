@@ -39,15 +39,18 @@ export const Default: Story = {
     value: '',
     onChangeInput: (value) => {}, //console.log('Changed value:', value),
     searchTrigger: '/',
-    onSearch: (value) => console.log('Search triggered with:', value),
+    onSearch: (value) => {
+      console.log('Search triggered with:', value)
+      // Simulate search results
+      return [
+        { label: 'Apple', value: 'apple' },
+        { label: 'Banana', value: 'banana' },
+        { label: 'Cherry', value: 'cherry' },
+      ].filter(item => item.label.toLowerCase().includes(value.toLowerCase()));
+    },
     onSelect: (value) => {}, //console.log('Selected value:', value),
     placeholder: 'Type something...',
     style: { width: '300px' },
-    items: [
-      { label: 'Apple', value: 'apple' },
-      { label: 'Banana', value: 'banana' },
-      { label: 'Cherry', value: 'cherry' },
-    ],
     onSelectMenuItem: (item) => console.log('Menu item selected:', item),
   },
 };
