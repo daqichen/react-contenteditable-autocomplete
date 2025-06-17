@@ -7,9 +7,9 @@ export namespace ContentEditable {
   export interface Props {
     value: string;
     onChange: (evt: FormEvent<HTMLDivElement>) => void;
-    searchTrigger: string;
-    onSearch?: (value: string) => Menu.Item[];
-    onSelect?: (value: string) => void;
+    // searchTrigger: string;
+    // onSearch?: (value: string) => Menu.Item[];
+    onSelect?: (item: Menu.Item) => void;
     placeholder?: string;
     className?: string;
     style?: CSSProperties;

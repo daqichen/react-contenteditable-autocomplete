@@ -13,11 +13,11 @@ export const AnchorWrapper = (
 ) =>
   ` <a contenteditable="false" href="${link}"${link ? ` target="_blank"` : ""}${identifier ? ` data-identifier="${identifier}"` : ""} style="${!link ? "pointer-events:none;" : ""}cursor:default;text-decoration:underline;">${text}</a> `;
 
-export const isActiveWithinMenu = () =>
-  document.activeElement?.id === "typeahead-quarter-year-picker" ||
-  document.activeElement?.id === "typeahead-quarter-year-input" ||
-  document.activeElement?.parentElement?.parentElement?.parentElement?.id ===
-    "typeahead-tabs";
+// export const isActiveWithinMenu = () =>
+//   document.activeElement?.id === "typeahead-quarter-year-picker" ||
+//   document.activeElement?.id === "typeahead-quarter-year-input" ||
+//   document.activeElement?.parentElement?.parentElement?.parentElement?.id ===
+//     "typeahead-tabs";
 
 export function debounce(func: any, wait: number) {
   let timeout: number;
@@ -48,7 +48,7 @@ export const decodeHtml = (html: string) => {
 
 export function getCoordinates() {
   const target = document.createTextNode("\u0001");
-  if (document.activeElement?.id !== "input-area__input") return null;
+  if (document.activeElement?.id !== "library-internal-content-editable") return null;
   document.getSelection()?.getRangeAt(0).insertNode(target);
   // Get coordinates via Range
   const range = document.createRange();

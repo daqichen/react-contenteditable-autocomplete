@@ -13,12 +13,13 @@ export namespace Menu {
 
     export interface Props extends ComponentProps<'div'> {
         items: Item[]; // Array of menu items
-        onSelectMenuItem: (evt: MouseEvent<HTMLLIElement>, item?: Item) => void; // Callback when an item is selected
+        onSelectMenuItem: (item: Item) => void; // Callback when an item is selected
         renderItem?: (item: Item, index: number) => ReactNode; // Optional custom render function for menu items
         position: {
             top: number | null; // Top position of the menu
             left: number | null; // Left position of the menu
         }; // Optional position for absolute positioning of the menu
+        searchTerm: string; // Optional search term to filter items
     }
 
     export interface State {

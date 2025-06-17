@@ -6,8 +6,8 @@ import sanitizeHtml from 'sanitize-html';
 export const ContentEditable = forwardRef<HTMLDivElement, ContentEditableClass.Props>(({
     value,
     onChange,
-    searchTrigger = '/',
-    onSearch,
+    // searchTrigger = '/',
+    // onSearch,
     onSelect,
     placeholder = 'Type here...',
     className = '',
@@ -28,7 +28,7 @@ export const ContentEditable = forwardRef<HTMLDivElement, ContentEditableClass.P
         // e.preventDefault();
         if (e.key === 'Enter' && onSelect) {
             // e.preventDefault();
-            onSelect(innerContentEditableRef.current?.textContent || '');
+            // onSelect();
         }
         // if (onSearch) {
         //     onSearch(innerContentEditableRef.current?.textContent || '');
@@ -38,6 +38,7 @@ export const ContentEditable = forwardRef<HTMLDivElement, ContentEditableClass.P
     return (
         <div
             ref={innerContentEditableRef}
+            id={"library-internal-content-editable"}
             className={`autocomplete-content-editable-default ${className} ${isFocused ? 'focused' : ''}`}
             contentEditable
             suppressContentEditableWarning
