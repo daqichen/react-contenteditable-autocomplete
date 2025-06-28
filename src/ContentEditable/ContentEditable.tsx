@@ -6,34 +6,21 @@ import sanitizeHtml from 'sanitize-html';
 export const ContentEditable = forwardRef<HTMLDivElement, ContentEditableClass.Props>(({
     value,
     onChange,
-    // searchTrigger = '/',
-    // onSearch,
-    onSelect,
     placeholder = 'Type here...',
     className = '',
     style = {},
+    ...props
 }, ref: ContentEditableClass.Reference) => {
     const [isFocused, setIsFocused] = useState(false);
     const innerContentEditableRef = useRef<HTMLDivElement>(null);
 
     useImperativeHandle(ref, () => innerContentEditableRef.current! as HTMLDivElement, []);
 
-    // useEffect(() => {
-    //     if (innerContentEditableRef.current) {
-    //         innerContentEditableRef.current.textContent = value;
-    //     }
-    // }, [value]);
-
-    const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-        // e.preventDefault();
-        if (e.key === 'Enter' && onSelect) {
-            // e.preventDefault();
-            // onSelect();
+    useEffect(() => {
+        if (innerContentEditableRef.current) {
+            innerContentEditableRef.current.textContent = value;
         }
-        // if (onSearch) {
-        //     onSearch(innerContentEditableRef.current?.textContent || '');
-        // }
-    };
+    }, [value]);
 
     return (
         <div
@@ -43,11 +30,11 @@ export const ContentEditable = forwardRef<HTMLDivElement, ContentEditableClass.P
             contentEditable
             suppressContentEditableWarning
             onInput={onChange}
-            onKeyDown={onKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             style={style}
             data-placeholder={placeholder}
+            {...props}
         />
     );
 });

@@ -15,14 +15,15 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
     value,
     onChangeInput,
     searchTrigger = '/',
+    preserveSearchTrigger = false,
     onSearch,
-    onSelect,
+    onKeyDown,
     placeholder = 'Type here...',
     className = '',
     style = {},
     onSelectMenuItem = () => { },
     searchDelay = 300,
-    renderItem,
+    renderMenuItem,
 }) => {
     const contentEditableRef = useRef<HTMLDivElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -30,11 +31,55 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
     const [internalMenuItems, setInternalMenuItems] = useState<MenuClass.Item[]>([]);
     const [internalSearchTerm, setInternalSearchTerm] = useState<string>('');
     const [internalCursorPosition, setInternalCursorPosition] = useState<number>(-1);
+    const [activeMenuItemId, setActiveMenuItemId] = useState<number>(0);
 
-    const removeMenu = () => {
+    useEffect(() => {
+        document.addEventListener('click', removeMenu);
+        document.addEventListener('scroll', removeMenu); // Remove menu on scroll to avoid it staying open when scrolling the page
+        window.addEventListener('resize', removeMenu); // Remove menu on resize to avoid it staying open when resizing the window
+        return () => {
+            document.removeEventListener('click', removeMenu);
+            document.removeEventListener('scroll', removeMenu);
+            window.removeEventListener('resize', removeMenu);
+        }
+    },[]);
+
+    const removeMenu = throttle(() => {
         if (menuRef.current) {
             setMenuPosition({ top: null, left: null });
+            setActiveMenuItemId(0);
         }
+    }, 100);
+
+    const internalOnKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (!contentEditableRef.current) return;
+        if (onKeyDown) {
+            onKeyDown(e);
+        }
+        if (menuPosition.top !== null && menuPosition.left !== null) {
+            // If the menu is open, handle key events for navigation
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                setActiveMenuItemId((prevId) => {
+                    const newId = e.key === 'ArrowDown' ? prevId + 1 : prevId - 1;
+                    if (newId < 0) return 0; // Prevent going below 0
+                    if (newId >= internalMenuItems.length) return internalMenuItems.length - 1; // Prevent going above the last item
+                    return newId;
+                }
+                );
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (internalMenuItems.length > 0 && internalMenuItems[activeMenuItemId]) {
+                    internalOnSelect(internalMenuItems[activeMenuItemId]);
+                }
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                removeMenu();
+            }
+        }
+        // if (onSearch) {
+        //     onSearch(innerContentEditableRef.current?.textContent || '');
+        // }
     };
 
     const internalOnChange = (evt: FormEvent<HTMLDivElement>) => {
@@ -55,11 +100,10 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
         const strippedContentUpToCursor = sanitizeHtml(innerHTML.slice(0, position), strictHTMLSanitization);
 
         const lastSearchTerm = strippedContentUpToCursor.split(/<[^>]*>|\s+/gm).pop()?.startsWith(searchTrigger) ? strippedContentUpToCursor.split(/<[^>]*>|\s+/gm).pop()?.slice(searchTrigger.length).trim() ?? '' : '';
-        // console.log('Last search term:', lastSearchTerm);
         setInternalSearchTerm(lastSearchTerm);
 
         debounce(() => {// If the last search term is empty, remove the menu
-            if (strippedContent && lastSearchTerm !== '') {
+            if (strippedContent) {
                 const results = onSearch?.(lastSearchTerm);
                 if (results && results.length > 0) {
                     const coordinates = getCoordinates();
@@ -78,8 +122,8 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
     };
 
     const internalOnSelect = (item: MenuClass.Item) => {
-        if (onSelect) {
-            onSelect(item);
+        if (onSelectMenuItem) {
+            onSelectMenuItem(item);
         }
         // Update the contentEditable with the selected item
         if (contentEditableRef.current) {
@@ -90,9 +134,9 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
             const contentBeforeSearchTrigger = contentBeforeCursor.slice(0, lastSearchTermIndex);
             // Construct the new content
             const contentAfterCursor = currentContent.slice(internalCursorPosition);
-            const newContent = `${contentBeforeSearchTrigger}${item.label}${contentAfterCursor}`;
+            const newContent = `${contentBeforeSearchTrigger}${preserveSearchTrigger ? searchTrigger : ''}${item.label}${contentAfterCursor}`;
             contentEditableRef.current.innerHTML = sanitizeHtml(newContent, strictHTMLSanitization);
-            setCurrentCursorPosition(contentBeforeSearchTrigger.replace(/<[^>]+>/g, "").length + item.label.length, contentEditableRef.current);
+            setCurrentCursorPosition(contentBeforeSearchTrigger.replace(/<[^>]+>/g, "").length + item.label.length + (preserveSearchTrigger ? searchTrigger.length : 0), contentEditableRef.current);
         }
         // Remove the menu after selection
         setInternalMenuItems([]);
@@ -104,9 +148,7 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
             <ContentEditable
                 value={value}
                 onChange={internalOnChange}
-                // searchTrigger={searchTrigger} //TODO: Might not be needed here, but kept for consistency
-                // onSearch={onSearch} //TODO: Might not be needed here, but kept for consistency
-                onSelect={internalOnSelect}
+                onKeyDown={internalOnKeyDown}
                 placeholder={placeholder}
                 className={className}
                 style={style}
@@ -119,8 +161,9 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
                 onSelectMenuItem={internalOnSelect}
                 position={menuPosition} // Position should be calculated based on the contentEditable position
                 className="autocomplete-menu"
-                renderItem={renderItem}
+                renderMenuItem={renderMenuItem}
                 style={{ display: 'none' }} // Initially hidden, should be shown based on search input
+                activeId={activeMenuItemId}
             />
         </>
     );

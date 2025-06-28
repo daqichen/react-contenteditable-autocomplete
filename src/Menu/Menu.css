@@ -14,15 +14,24 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     list-style: none;
     margin: 0;
-    z-index: 1000;
     transform: translateY(-105%);
     
     li {
         padding: 8px 12px;
         cursor: pointer;
     }
+
+    li.active {
+        background-color: #f0f0f0;
+    }
+
     li:hover {
         background-color: #f0f0f0;
     }
-    
+
+    .menu-icon {
+        margin-right: 8px;
+        width: 16px;
+        height: 16px;
+    }
 }

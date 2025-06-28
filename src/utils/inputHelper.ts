@@ -10,8 +10,10 @@ export const AnchorWrapper = (
   text: string,
   link?: string,
   identifier?: string,
+  className?: string,
+  backgroundColor?: string,
 ) =>
-  ` <a contenteditable="false" href="${link}"${link ? ` target="_blank"` : ""}${identifier ? ` data-identifier="${identifier}"` : ""} style="${!link ? "pointer-events:none;" : ""}cursor:default;text-decoration:underline;">${text}</a> `;
+  ` <a contenteditable="false" href="${link}"${link ? ` target="_blank"` : ""}${identifier ? ` data-identifier="${identifier}"` : ""} ${className ? `class="${className}"` : ""} style="${!link ? "pointer-events:none;" : ""}${backgroundColor ? `background-color:${backgroundColor};` : ""}cursor:default;text-decoration:underline;">${text}</a> `;
 
 // export const isActiveWithinMenu = () =>
 //   document.activeElement?.id === "typeahead-quarter-year-picker" ||

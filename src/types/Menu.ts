@@ -4,7 +4,7 @@ export namespace Menu {
     export interface Item {
         label: string;
         value: string;
-        icon?: string; // Optional icon for the menu item
+        icon?: string | ReactNode; // Optional icon for the menu item
         disabled?: boolean; // Optional flag to disable the menu item
         subItems?: Item[]; // Optional sub-items for nested menus
     }
@@ -14,12 +14,13 @@ export namespace Menu {
     export interface Props extends ComponentProps<'div'> {
         items: Item[]; // Array of menu items
         onSelectMenuItem: (item: Item) => void; // Callback when an item is selected
-        renderItem?: (item: Item, index: number) => ReactNode; // Optional custom render function for menu items
+        renderMenuItem?: (item: Item, index: number) => ReactNode; // Optional custom render function for menu items
         position: {
             top: number | null; // Top position of the menu
             left: number | null; // Left position of the menu
         }; // Optional position for absolute positioning of the menu
         searchTerm: string; // Optional search term to filter items
+        activeId?: number; // Optional ID of the currently active item
     }
 
     export interface State {
