@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, FormEvent, useMemo } from 'react';
-import './AutocompleteContentEditable.css';
 import { AutocompleteContentEditable as AutocompleteContentEditableClass } from './types/AutocompleteContentEditable';
 import ContentEditable from './ContentEditable/ContentEditable';
 import Menu from './Menu/Menu';
