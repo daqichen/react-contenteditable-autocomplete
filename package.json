@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "build": "rslib build",
-    "build:storybook": "storybook build",
+    "build-storybook": "storybook build",
     "check": "biome check --write",
     "dev": "rslib build --watch",
     "format": "biome format --write",
@@ -37,6 +37,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^19.1.6",
+    "chromatic": "^13.1.0",
     "jsdom": "^26.1.0",
     "react": "^19.1.0",
     "storybook": "^9.0.5",
