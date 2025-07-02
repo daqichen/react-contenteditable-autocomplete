@@ -2,12 +2,32 @@
   "name": "react-contenteditable-autocomplete",
   "version": "1.0.0",
   "type": "module",
+  "description": "a React component for contenteditable DIV with autocomplete support",
+  "author": {
+    "name": "Daqi (Jen) Chen",
+    "email": "daqichen@alumni.unc.edu",
+    "url": "https://daqichen.github.io"
+  },
+  "keywords": [
+    "react",
+    "contenteditable",
+    "autocomplete",
+    "component",
+    "div",
+    "editable"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daqichen/react-contenteditable-autocomplete.git"
+  },
+  "license": "MIT",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
