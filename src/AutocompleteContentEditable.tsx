@@ -1,15 +1,11 @@
-import React, { useState, useRef, useEffect, FormEvent } from 'react';
+import React, { useState, useRef, useEffect, FormEvent, useMemo } from 'react';
 import './AutocompleteContentEditable.css';
 import { AutocompleteContentEditable as AutocompleteContentEditableClass } from './types/AutocompleteContentEditable';
 import ContentEditable from './ContentEditable/ContentEditable';
 import Menu from './Menu/Menu';
 import sanitizeHtml from 'sanitize-html';
-import { debounce, findingRange, getCoordinates, getCursorPosition, placeCaretAtEnd, setCurrentCursorPosition, throttle } from './utils/inputHelper';
+import { debounce, TagWrapper, getCoordinates, getCursorPosition, placeCaretAtEnd, setCurrentCursorPosition, throttle } from './utils/inputHelper';
 import { Menu as MenuClass } from './types/Menu';
-
-const strictHTMLSanitization = {
-    allowedTags: ['br', 'b', 'i', 'u', 'strong', 'em', 'p', 'div', 'span'],
-}
 
 export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableClass.Props> = ({
     value,
@@ -19,11 +15,13 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
     onSearch,
     onKeyDown,
     placeholder = 'Type here...',
-    className = '',
-    style = {},
+    menuClassName = '',
+    menuStyle = {},
     onSelectMenuItem = () => { },
+    showSelectionAsHTMLTag = false,
     searchDelay = 300,
     renderMenuItem,
+    ...props
 }) => {
     const contentEditableRef = useRef<HTMLDivElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -32,6 +30,22 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
     const [internalSearchTerm, setInternalSearchTerm] = useState<string>('');
     const [internalCursorPosition, setInternalCursorPosition] = useState<number>(-1);
     const [activeMenuItemId, setActiveMenuItemId] = useState<number>(0);
+
+    const strictHTMLSanitization = useMemo(() => {
+        // Sanitize HTML to allow only specific tags and attributes
+        const allowedAttributeAppendix = typeof showSelectionAsHTMLTag === 'object' && showSelectionAsHTMLTag.HTMLTag !== "a" ? {
+            [showSelectionAsHTMLTag.HTMLTag]: ['class', 'style'] // Allow class and style attributes for the custom HTML tag
+        } : {};
+        return {
+            allowedTags: ['br', 'b', 'i', 'u', 'strong', 'em', 'p', 'div', 'span', 'a'],
+            allowedAttributes: {
+                'a': ['href', 'target', 'data-identifier', 'class', 'style'],
+                ...allowedAttributeAppendix, // Append custom HTML tag attributes if provided
+            },
+        };
+    }, [showSelectionAsHTMLTag]);
+
+    const SELECTION_TAG_IF_SET = useMemo(() => (typeof showSelectionAsHTMLTag === 'object' && showSelectionAsHTMLTag.HTMLTag)? showSelectionAsHTMLTag.HTMLTag : showSelectionAsHTMLTag === true ? 'a' : null, [showSelectionAsHTMLTag]);
 
     useEffect(() => {
         document.addEventListener('click', removeMenu);
@@ -56,6 +70,23 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
         if (onKeyDown) {
             onKeyDown(e);
         }
+        // delete the anchor tag if the user presses backspace or delete
+        if ((e.key === 'Backspace' || e.key === 'Delete') && SELECTION_TAG_IF_SET) {
+            const selection = window.getSelection();
+            if (selection && selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const selectedNode = range.startContainer;
+                if (selectedNode.nodeType === Node.TEXT_NODE) {
+                    const parentNode = selectedNode.parentNode;
+                    if (parentNode && parentNode.nodeName === SELECTION_TAG_IF_SET.toLocaleUpperCase() && parentNode.textContent) {
+                        e.preventDefault(); // Prevent default backspace/delete behavior
+                        // const anchorText = parentNode.textContent;
+                        // Remove the anchor tag fully
+                        parentNode.parentNode?.removeChild(parentNode);
+                    }
+                }
+            }
+        }
         if (menuPosition.top !== null && menuPosition.left !== null) {
             // If the menu is open, handle key events for navigation
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -77,9 +108,6 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
                 removeMenu();
             }
         }
-        // if (onSearch) {
-        //     onSearch(innerContentEditableRef.current?.textContent || '');
-        // }
     };
 
     const internalOnChange = (evt: FormEvent<HTMLDivElement>) => {
@@ -99,7 +127,9 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
         setInternalCursorPosition(position);
         const strippedContentUpToCursor = sanitizeHtml(innerHTML.slice(0, position), strictHTMLSanitization);
 
-        const lastSearchTerm = strippedContentUpToCursor.split(/<[^>]*>|\s+/gm).pop()?.startsWith(searchTrigger) ? strippedContentUpToCursor.split(/<[^>]*>|\s+/gm).pop()?.slice(searchTrigger.length).trim() ?? '' : '';
+        const lastSearchTerm = strippedContentUpToCursor.split(/<[^>]*>|\s+/gm).pop()?.startsWith(searchTrigger) ? strippedContentUpToCursor.split(/<[^>]*>|\s+/gm).pop()?.slice(searchTrigger.length).trim() ?? '' : undefined;
+        if (lastSearchTerm === undefined) return removeMenu();
+
         setInternalSearchTerm(lastSearchTerm);
 
         debounce(() => {// If the last search term is empty, remove the menu
@@ -134,9 +164,37 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
             const contentBeforeSearchTrigger = contentBeforeCursor.slice(0, lastSearchTermIndex);
             // Construct the new content
             const contentAfterCursor = currentContent.slice(internalCursorPosition);
-            const newContent = `${contentBeforeSearchTrigger}${preserveSearchTrigger ? searchTrigger : ''}${item.label}${contentAfterCursor}`;
+            const newContent = `${contentBeforeSearchTrigger}${TagWrapper((preserveSearchTrigger ? searchTrigger : '') + item.label, showSelectionAsHTMLTag)}${contentAfterCursor}`;
             contentEditableRef.current.innerHTML = sanitizeHtml(newContent, strictHTMLSanitization);
-            setCurrentCursorPosition(contentBeforeSearchTrigger.replace(/<[^>]+>/g, "").length + item.label.length + (preserveSearchTrigger ? searchTrigger.length : 0), contentEditableRef.current);
+
+            if (showSelectionAsHTMLTag === false) {
+                setCurrentCursorPosition(
+                    contentBeforeSearchTrigger.replace(/<[^>]+>/g, "").length + 
+                    item.label.length + 
+                    (preserveSearchTrigger ? searchTrigger.length : 0),
+                    contentEditableRef.current
+                );
+            } else {
+                const range = document.createRange();
+                const selection = window.getSelection();
+                let targetChild: ChildNode;
+
+                Array.from(contentEditableRef.current.childNodes).forEach((node, id) => {
+                    if (node.textContent?.indexOf(item.label) !== -1 && contentEditableRef.current) {
+                        targetChild = Array.from(contentEditableRef.current.childNodes)?.[id + 1]; // +1 because target is the text node following the custom node (default to anchor) containing '&nbsp;'
+
+                        // Find the position of the targetChild
+                        if (targetChild) {
+                            range.setStart(targetChild, targetChild.textContent ? 1 : 0);
+                            range.collapse(true);
+                            selection?.removeAllRanges();
+                            selection?.addRange(range);
+                            contentEditableRef.current.focus();
+                        } 
+                    }
+            });
+
+            }
         }
         // Remove the menu after selection
         setInternalMenuItems([]);
@@ -150,9 +208,8 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
                 onChange={internalOnChange}
                 onKeyDown={internalOnKeyDown}
                 placeholder={placeholder}
-                className={className}
-                style={style}
                 ref={contentEditableRef}
+                {...props}
             />
             <Menu
                 ref={menuRef}
@@ -160,9 +217,9 @@ export const AutocompleteContentEditable: React.FC<AutocompleteContentEditableCl
                 items={internalMenuItems} // This should be populated with actual items
                 onSelectMenuItem={internalOnSelect}
                 position={menuPosition} // Position should be calculated based on the contentEditable position
-                className="autocomplete-menu"
+                className={"autocomplete-menu" + (menuClassName ? ` ${menuClassName}` : '')}
+                style={menuStyle}
                 renderMenuItem={renderMenuItem}
-                style={{ display: 'none' }} // Initially hidden, should be shown based on search input
                 activeId={activeMenuItemId}
             />
         </>

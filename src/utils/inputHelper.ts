@@ -1,3 +1,5 @@
+import { AutocompleteContentEditable } from "../types/AutocompleteContentEditable";
+
 export const getCursorPosition = (ele: HTMLDivElement) => {
     const target = document.createTextNode("\u0001");
     document.getSelection()?.getRangeAt(0).insertNode(target);
@@ -6,20 +8,36 @@ export const getCursorPosition = (ele: HTMLDivElement) => {
     return position;
 }
 
-export const AnchorWrapper = (
+const o2s = (o: React.CSSProperties) => {
+  const elm = new Option();
+  Object.assign(elm.style, o);
+  return elm.style.cssText; 
+}
+
+export const TagWrapper = (
   text: string,
+  config: AutocompleteContentEditable.Props["showSelectionAsHTMLTag"],
   link?: string,
-  identifier?: string,
-  className?: string,
-  backgroundColor?: string,
-) =>
-  ` <a contenteditable="false" href="${link}"${link ? ` target="_blank"` : ""}${identifier ? ` data-identifier="${identifier}"` : ""} ${className ? `class="${className}"` : ""} style="${!link ? "pointer-events:none;" : ""}${backgroundColor ? `background-color:${backgroundColor};` : ""}cursor:default;text-decoration:underline;">${text}</a> `;
+  identifier?: string
+) => {
+    if (config === false) {
+        return text;
+    }
+    let tag: keyof HTMLElementTagNameMap = "a";
+    let tagInlineStyle: React.CSSProperties = {};
+    let tagClassName: string = "";
+    if (typeof config === "object") {
+        tag = config.HTMLTag || "a";
+        tagInlineStyle = config.HTMLInlineStyle || {};
+        tagClassName = config.HTMLClassName || "";
+    }
+    return `<${tag} ${link && tag === "a" ? `href="${link}" target="_blank"` : ""}${identifier ? ` data-identifier="${identifier}"` : ""} class="custom-selection-className${tagClassName ? ` ${tagClassName}` : ""}" style="${link && tag === "a" ? "pointer-events:initial;" : ""}${o2s(tagInlineStyle)}">${text}</${tag}>&nbsp;`
+};
 
 // export const isActiveWithinMenu = () =>
-//   document.activeElement?.id === "typeahead-quarter-year-picker" ||
-//   document.activeElement?.id === "typeahead-quarter-year-input" ||
+//   document.activeElement?.id === 
+//   document.activeElement?.id ===
 //   document.activeElement?.parentElement?.parentElement?.parentElement?.id ===
-//     "typeahead-tabs";
 
 export function debounce(func: any, wait: number) {
   let timeout: number;
@@ -112,6 +130,7 @@ export function placeCaretAtEnd(el: HTMLElement) {
 }
 
 export function setCurrentCursorPosition(chars: number, element: HTMLElement) {
+    console.log("setCurrentCursorPosition: ", chars, element.innerHTML);
   if (chars >= 0) {
     const selection = window.getSelection();
 

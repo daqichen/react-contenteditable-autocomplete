@@ -54,7 +54,6 @@ export const BoldSearchTerm: Story = {
       ].filter(item => item.label.toLowerCase().includes(value.toLowerCase()));
     },
     
-    style: { width: '300px' },
     onSelectMenuItem: (item) => console.log('Menu item selected:', item),
     preserveSearchTrigger: false
   },
@@ -82,7 +81,6 @@ export const SearchFruitsWithIcons: Story = {
       ].filter(item => item.label.toLowerCase().includes(value.toLowerCase()));
     },
     
-    style: { width: '300px' },
     onSelectMenuItem: (item) => console.log('Menu item selected:', item),
     preserveSearchTrigger: false
   },
@@ -96,7 +94,7 @@ const tags = [
   { label: '#Food', value: 'food' },
 ]
 
-export const SearchTagsWithCustomStyles: Story = {
+export const SearchTagsWithCustomStyledTags: Story = {
   args: {
     placeholder: "Search for tags, start query with \"#\"",
     onChangeInput: (value) => {},
@@ -115,6 +113,18 @@ export const SearchTagsWithCustomStyles: Story = {
     ),
     
     // style: { width: '300px' },
+    showSelectionAsHTMLTag: ({
+      HTMLTag: 'i', 
+      HTMLInlineStyle: {
+        backgroundColor: 'lavenderblush',
+        borderRadius: '4px',
+        border: '1px solid crimson',
+        padding: '2px 8px',
+        fontSize: '12px',
+        color: 'maroon',
+      },
+      HTMLClassName: 'custom-tag-class',
+    }),
     onSelectMenuItem: (item) => console.log('Menu item selected:', item),
     preserveSearchTrigger: false
   },

@@ -9,6 +9,18 @@
     border-radius: 4px;
     border: 1px solid #ccc;
     padding: 10px;
+    .custom-selection-className {
+        background-color: #e3edf9;
+        border-radius: 8px;
+        color: #4d80c5;
+        padding: 2px 4px;
+        margin: 0 2px;
+        font-size: 14px;
+        line-height: 1.5;
+        text-decoration: none;
+        pointer-events: none; /* Prevents link interaction when no link is present */
+        cursor: default;
+    }
 }
 
 .autocomplete-content-editable-default:focus {
