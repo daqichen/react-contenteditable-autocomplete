@@ -24,7 +24,6 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm run build
           git config --global user.email "55526292+daqichen@users.noreply.github.com" && git config --global user.name "daqichen"
-          pnpm version patch
           pnpm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
