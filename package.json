@@ -1,8 +1,8 @@
 {
-  "name": "react-contenteditable-autocomplete",
-  "version": "1.0.0",
+  "name": "react-content-editable-autocomplete",
+  "version": "0.0.0",
   "type": "module",
-  "description": "a React component for contenteditable DIV with autocomplete support",
+  "description": "a React component for streamlining user input in a `contenteditable` HTML <div> with seamless and customizable autocomplete.",
   "author": {
     "name": "Daqi (Jen) Chen",
     "email": "daqichen@alumni.unc.edu",
