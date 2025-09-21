@@ -1,8 +1,8 @@
 {
-	"name": "react-content-editable-autocomplete",
-	"version": "0.0.0",
+	"name": "react-custom-autocomplete",
+	"version": "0.0.1",
 	"type": "module",
-	"description": "a React component for streamlining user input in a `contenteditable` HTML <div> with seamless and customizable autocomplete.",
+	"description": "React component for customizing user input autocomplete - using `contenteditable` div",
 	"author": {
 		"name": "Daqi (Jen) Chen",
 		"email": "daqichen@alumni.unc.edu",
@@ -12,9 +12,12 @@
 		"react",
 		"contenteditable",
 		"autocomplete",
+		"autocompletion",
 		"component",
 		"div",
-		"editable"
+		"editable",
+		"custom",
+		"customize"
 	],
 	"repository": {
 		"type": "git",
