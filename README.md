@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="200px" height="200px" alt="react-custom-autocomplete" src="https://github.com/user-attachments/assets/c44d2e3f-537d-44d2-a945-82f6413bc25e"/>
+  <img width="200px" height="200px" alt="react-custom-autocomplete" src="https://main--6865b05aa79b3c94910be512.chromatic.com/logo.png"/>
 </p>
 <h1 align="center"><code>React Custom Autocomplete</code></h1>
 
@@ -8,8 +8,8 @@
 </p>
 
 <p align="center">
-  <a href="https://npm.im/react-autocomplete-demo"><img src="https://img.shields.io/npm/v/react-autocomplete-demo?style=flat-square" alt="NPM Version" /></a>
-  <a href="https://npm.im/react-autocomplete-demo"><img src="https://img.shields.io/npm/l/react-autocomplete-demo?style=flat-square" alt="MIT License" /></a>
+  <a href="https://npm.im/react-custom-autocomplete"><img src="https://img.shields.io/npm/v/react-custom-autocomplete?style=flat-square" alt="NPM Version" /></a>
+  <a href="https://npm.im/react-custom-autocomplete"><img src="https://img.shields.io/npm/l/react-custom-autocomplete?style=flat-square" alt="MIT License" /></a>
   <a href="https://github.com/daqichen/react-contenteditable-autocomplete"><img src="https://img.shields.io/github/actions/workflow/status/daqichen/react-contenteditable-autocomplete/.github%2Fworkflows%2Fchromatic.yml?branch=main&style=flat-square" alt="Build status" /></a>
   <a href="https://github.com/daqichen/react-contenteditable-autocomplete"><img src="https://img.shields.io/github/issues-search?query=repo%3Adaqichen%2Freact-contenteditable-autocomplete%20is%3Aopen&label=Open%20issues&style=flat-square" alt="Open issues" /></a>
 </p>
