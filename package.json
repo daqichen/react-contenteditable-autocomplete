@@ -1,6 +1,6 @@
 {
 	"name": "react-custom-autocomplete",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"type": "module",
 	"description": "React component for customizing user input autocomplete - using `contenteditable` div",
 	"author": {
