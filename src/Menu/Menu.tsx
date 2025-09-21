@@ -51,9 +51,11 @@ const Menu: FC<MenuClass.Props> = forwardRef<HTMLDivElement, MenuClass.Props>(
 							props.className
 						)}
 						style={{
-							left: position.left ?? -9999,
-							position: "absolute",
-							top: position.top ?? -9999,
+							inset: "0px auto auto 0px",
+							transform: `translate3d(${position.left ?? -9999}px, ${
+								position.top ?? -9999
+							}px, 0px)`,
+							position: "fixed",
 							zIndex: 9999,
 						}}
 					>

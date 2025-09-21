@@ -36,6 +36,7 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const BoldSearchTerm: Story = {
 	args: {
+		rootClassName: "sbdocs-wrapper",
 		placeholder: 'Search for books, start query with "/"',
 		onChangeInput: (value) => {},
 
@@ -63,6 +64,7 @@ export const BoldSearchTerm: Story = {
 
 export const IconSupport: Story = {
 	args: {
+		// rootClassName: "sbdocs-wrapper",
 		placeholder: 'Search for fruits, start query with "/"',
 		onChangeInput: (value) => {},
 

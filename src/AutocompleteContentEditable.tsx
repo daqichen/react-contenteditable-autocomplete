@@ -12,6 +12,8 @@ import {
 	throttle,
 } from "./utils/inputHelper";
 import { Menu as MenuClass } from "./types/Menu";
+import { useSafeHTML } from "./utils/useSafeHTML";
+import { useUpdateMenuLocation } from "./utils/useUpdateMenuLocation";
 
 export const AutocompleteContentEditable: React.FC<
 	AutocompleteContentEditableClass.Props
@@ -42,50 +44,14 @@ export const AutocompleteContentEditable: React.FC<
 		[]
 	);
 	const [internalSearchTerm, setInternalSearchTerm] = useState<string>("");
-	const [menuPosition, setMenuPosition] = useState<{
-		top: number | null;
-		left: number | null;
-	}>({ top: null, left: null });
 
-	const strictHTMLSanitization = useMemo(() => {
-		// Sanitize HTML to allow only specific tags and attributes
-		const allowedAttributeAppendix =
-			typeof showSelectionAsHTMLTag === "object" &&
-			showSelectionAsHTMLTag.HTMLTag !== "a"
-				? {
-						[showSelectionAsHTMLTag.HTMLTag]: ["class", "style"], // Allow class and style attributes for the custom HTML tag
-				  }
-				: {};
-		return {
-			allowedTags: [
-				"br",
-				"b",
-				"i",
-				"u",
-				"strong",
-				"em",
-				"p",
-				"div",
-				"span",
-				"a",
-			],
-			allowedAttributes: {
-				a: ["href", "target", "data-identifier", "class", "style"],
-				...allowedAttributeAppendix, // Append custom HTML tag attributes if provided
-			},
-		};
-	}, [showSelectionAsHTMLTag]);
-
-	const SELECTION_TAG_IF_SET = useMemo(
-		() =>
-			typeof showSelectionAsHTMLTag === "object" &&
-			showSelectionAsHTMLTag.HTMLTag
-				? showSelectionAsHTMLTag.HTMLTag
-				: showSelectionAsHTMLTag === true
-				? "a"
-				: null,
-		[showSelectionAsHTMLTag]
-	);
+	// Custom hooks
+	const { safetyConfig: strictHTMLSanitization, selectionTagIfSet } =
+		useSafeHTML(showSelectionAsHTMLTag);
+	const { removeMenu, menuPosition, setMenuPosition } = useUpdateMenuLocation({
+		setActiveMenuItemId,
+		menuRef,
+	});
 
 	useEffect(() => {
 		document.addEventListener("click", removeMenu);
@@ -98,20 +64,13 @@ export const AutocompleteContentEditable: React.FC<
 		};
 	}, []);
 
-	const removeMenu = throttle(() => {
-		if (menuRef.current) {
-			setMenuPosition({ top: null, left: null });
-			setActiveMenuItemId(0);
-		}
-	}, 100);
-
 	const internalOnKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (!contentEditableRef.current) return;
 		if (onKeyDown) {
 			onKeyDown(e);
 		}
 		// delete the anchor tag if the user presses backspace or delete
-		if ((e.key === "Backspace" || e.key === "Delete") && SELECTION_TAG_IF_SET) {
+		if ((e.key === "Backspace" || e.key === "Delete") && selectionTagIfSet) {
 			const selection = window.getSelection();
 			if (selection && selection.rangeCount > 0) {
 				const range = selection.getRangeAt(0);
@@ -120,7 +79,7 @@ export const AutocompleteContentEditable: React.FC<
 					const parentNode = selectedNode.parentNode;
 					if (
 						parentNode &&
-						parentNode.nodeName === SELECTION_TAG_IF_SET.toLocaleUpperCase() &&
+						parentNode.nodeName === selectionTagIfSet.toLocaleUpperCase() &&
 						parentNode.textContent
 					) {
 						e.preventDefault(); // Prevent default backspace/delete behavior
